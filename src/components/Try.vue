@@ -25,7 +25,7 @@ export default {
   data () {
     return {
       testQueue: 'test',
-      testSquad: 'sqsadmin',
+      testSquad: 'gosqs.org',
       newMessage: '',
       messageLogs: [],
       masterAddr: process.env.SQS_ADMIN_ADDR,

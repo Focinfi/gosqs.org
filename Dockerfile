@@ -1,4 +1,4 @@
-FROM daocloud.io/node:0.10-onbuild
+FROM daocloud.io/node:7.8.0-onbuild
 ADD . ~/
 WORKDIR ~
 EXPOSE 8081

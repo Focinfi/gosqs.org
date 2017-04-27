@@ -1,4 +1,5 @@
-> Front-end project for gosqs.org with [vuejs](http://github.com/vuejs/vue)
+
+Front-end project for gosqs.org with [vuejs](http://github.com/vuejs/vue)
 
 ## Build Setup
 

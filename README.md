@@ -7,6 +7,9 @@ Front-end project for gosqs.org with [vuejs](http://github.com/vuejs/vue)
 # install dependencies
 npm install
 
+# set the admin server addr SQS_ADMIN_ADDR
+export SQS_ADMIN_ADDR='http://127.0.0.1:5446'
+
 # serve with hot reload at localhost:8081
 npm run dev
 

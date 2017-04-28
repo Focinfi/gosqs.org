@@ -35,7 +35,7 @@ export default {
     }
   },
   created () {
-    if (typeof process.env.SQS_ADMIN_ADDR !== 'undefined') {
+    if (process.env.SQS_ADMIN_ADDR !== 'undefined') {
       this.masterAddr = process.env.SQS_ADMIN_ADDR
     }
 

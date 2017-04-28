@@ -28,13 +28,17 @@ export default {
       testSquad: 'gosqs.org',
       newMessage: '',
       messageLogs: [],
-      masterAddr: process.env.SQS_ADMIN_ADDR,
+      masterAddr: '',
       servingNode: '',
       token: '',
       nextId: 0
     }
   },
   created () {
+    if (typeof process.env.SQS_ADMIN_ADDR !== 'undefined') {
+      this.masterAddr = process.env.SQS_ADMIN_ADDR
+    }
+
     this.applyNode()
   },
   mounted () {

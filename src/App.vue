@@ -8,7 +8,6 @@
         <el-col :span="10">
           <a href="/" class="nav-home">
             <svg class="nav-logo" width="51px" height="48px" viewBox="0 0 51 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <!-- Generator: Sketch 43.2 (39069) - http://www.bohemiancoding.com/sketch -->
                 <desc>Created with Sketch.</desc>
                 <defs></defs>
                 <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -22,8 +21,8 @@
         </el-col>
         <el-col :span="3">
           <div class="header-right">
-            <a href="https://github.com/go-sqs" class="link" type="text">Github</a>          
-            <a href="https://github.com/go-sqs" class="link" type="text">V0.1.0</a>
+            <a href="https://github.com/Focinfi/gosqs" class="link" type="text">Github</a>          
+            <a href="https://github.com/Focinfi/gosqs" class="link" type="text">V0.1.0</a>
           </div>
         </el-col>
         <el-col :span="4">

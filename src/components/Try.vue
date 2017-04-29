@@ -17,14 +17,14 @@
 </template>
 
 <script>
-let accessKey = 'Focinfi'
-let secretKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyIiOiJGb2NpbmZpIn0.JRfcSY6_syXNKypblVpdD7oNmHNFDKVPVjkbNTlzEKQ'
+let accessKey = 'test'
+let secretKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyIiOiJ0ZXN0In0.nrTjKRRFa2nuvqpwjNtpHYbWotxupYN6zf-S48XWxuY'
 
 export default {
   name: 'try',
   data () {
     return {
-      testQueue: 'test',
+      testQueue: accessKey,
       testSquad: 'gosqs.org',
       newMessage: '',
       messageLogs: [],
@@ -128,7 +128,6 @@ export default {
           return true
         }
       }).then(({ value }) => {
-        // let _this = this
         this.applyMessageID(function () {
           _this.$http.post(_this.servingNode + '/message', _this.apiJSONparams).then(response => {
             _this.newMessage = ''

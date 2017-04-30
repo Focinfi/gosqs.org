@@ -7,10 +7,10 @@
           <el-tag type="primary">{{testSquad}}</el-tag>
           <el-tag :type="testingTagType">{{testingStateString}}</el-tag>
         </span>
-        <el-button :disabled="testingAvailable" style="float: right;" type="primary" @click="pushMessage">Push Message</el-button>
+        <el-button :disabled="testingUnavailable" style="float: right;" type="primary" @click="pushMessage">Push Message</el-button>
       </div>
       <div v-for="o, i in messageLogs" class="text item">
-        {{ o.time }} {{ o.messages }}
+        {{ o.time }} {{ messagesEntryFormat(o.messages) }}
       </div>
     </el-card> 
   </div>
@@ -22,23 +22,21 @@ let secretKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyIiOiJ0ZXN0In0.nrTjKRRFa2
 
 export default {
   name: 'try',
+  props: {
+    masterAddr: String
+  },
   data () {
     return {
       testQueue: accessKey,
       testSquad: 'gosqs.org',
       newMessage: '',
       messageLogs: [],
-      masterAddr: '',
       servingNode: '',
       token: '',
       nextId: 0
     }
   },
   created () {
-    if (process.env.SQS_ADMIN_ADDR !== 'undefined') {
-      this.masterAddr = process.env.SQS_ADMIN_ADDR
-    }
-
     this.applyNode()
   },
   mounted () {
@@ -59,7 +57,7 @@ export default {
     testingTagType () {
       return this.servingNode === '' ? 'gray' : 'success'
     },
-    testingAvailable () {
+    testingUnavailable () {
       return this.servingNode === ''
     },
     testingStateString () {
@@ -90,25 +88,24 @@ export default {
       })
     },
     pullMessage () {
-      if (this.servingNode === '') {
-        this.messageLogs = [this.timeFormat(new Date()) + ' Failed to connect the node']
+      if (this.testingUnavailable) {
         return
       }
       this.$http.post(this.servingNode + '/messages', this.apiJSONparams).then(response => {
         let data = response.body.data
-        // console.log(data)
         let time = this.timeFormat(new Date())
-        let entry = {time: time, messages: ['No More Messages']}
-        if (data.messages.length > 0) {
+        let entry = {time: time, messages: [{message_id: 0}]}
+        if (data.messages !== null && data.messages.length > 0) {
           entry.messages = data.messages
           this.reportReceived()
         }
 
         this.messageLogs.push(entry)
-        if (this.messageLogs.length > 5) {
+        if (this.messageLogs.length > 4) {
           this.messageLogs.shift()
         }
       }, response => {
+        this.servingNode = ''
         console.log(response)
       })
     },
@@ -138,16 +135,12 @@ export default {
             })
           }, response => {
             _this.$message({
-              type: 'fail',
+              type: 'warning',
               message: 'Failed to push message'
             })
           })
         })
       }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: 'Cancel Push'
-        })
       })
     },
     applyMessageID (push) {
@@ -173,7 +166,13 @@ export default {
       return '[' + myDate.toLocaleTimeString('en-GB') + ']'
     },
     messagesEntryFormat (messages) {
-      return '[' + messages.map(function (obj) { return '"' + obj.content + '"' }).join(', ') + ']'
+      return '[' + messages.map(function (obj) {
+        if (obj.message_id === 0) {
+          return 'wait for new messages'
+        }
+
+        return obj.message_id + '-' + '"' + obj.content + '"'
+      }).join(', ') + ']'
     }
   }
 }
@@ -208,8 +207,8 @@ a {
 }
 
 .header-text {
-  font-size: 1.5em;
-  line-height: 34px;
+  font-size: 1.3em;
+  line-height: 30px;
 }
 
 .item {

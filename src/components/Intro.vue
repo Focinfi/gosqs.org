@@ -13,8 +13,8 @@
       <p class="desc">
         Scalability and Ordered Delivery
       </p>
-      <el-button class="link-button" size="large" type="primary"><strong>Get Started</strong></el-button>
-      <el-button class="link-button" size="large" type="primary"><strong>Look the Design</strong></el-button>
+      <el-button class="link-button" size="large" type="primary" v-scroll-to="{el: '#get-started', offset: -80}"><strong>Get Started</strong></el-button>
+      <el-button class="link-button" size="large" type="primary" v-scroll-to="{el: '#design-overview', offset: -80}"><strong>Look the Design</strong></el-button>
     </el-col>
     <el-col :span="8">
       <try :masterAddr="masterAddr"></try>
@@ -31,26 +31,34 @@
     <el-col :span="16">
       <h2><strong>Why another Queue Service?</strong></h2>
       <p>
-        For practicing the golang programming language and distributed system.
-        I choose to implement a queue service with focus on  
-        <strong>simplicity</strong> and
+        While playing the golang programming language in distributed system.
+        A queue service project called gosqs with focus on  
+        <strong>reliability</strong>,
         <strong>scalability</strong> and
-        <strong>ordered delivery</strong>.
+        <strong>ordered delivery</strong> was born.
         <br>
         <br>
-        To decouple the dependency of underlying storage of message, gosqs uses the 
-        <a href="https://github.com/Focinfi/oncekv" target="_blank">oncekv</a>, 
-        which is a combination of groupcahe and raft-boltdb.
-
+        Compare with other message queue implementations, the currency performance is not the priority of gosqs. Furthermore, gosqs is designed for the more strict scenarios. 
       </p>
-      <h2><strong>Design Overview</strong></h2>
-      <img class="architeture" src="http://on78mzb4g.bkt.clouddn.com/gosqs_architeture.png" alt="architeture">
+      <h2 id="design-overview"><strong>Design Overview</strong></h2>
       <p>
-      Queue and Squad
+      gosqs uses the
+        <a href="https://github.com/coreos/etcd" target="_blank">etcd</a>
+        to store the meta data of cluster and queue, like the current available node servers.
+      <br>
+      <br>
+      To decouple the dependency of underlying storage of message, gosqs uses the 
+        <a href="https://github.com/Focinfi/oncekv" target="_blank">oncekv</a>
+        which is a combination of groupcahe and raft-boltdb.
+      </p>
+      <img class="architeture" src="http://on78mzb4g.bkt.clouddn.com/gosqs_architeture.png" alt="architeture">
+      <br>
+      <p>
+      Every message in a queue has its own sequence id, every queue has a number of squads, which is a record for the last processed message id in its coresponding queue.  
       </p>
       <img class="queue_and_squad" src="http://on78mzb4g.bkt.clouddn.com/gosqs_queue_squad.png" alt="architeture">
       <section>
-        <h2><strong>Get Started</strong></h2>
+        <h2 id="get-started"><strong>Get Started</strong></h2>
         <p>
           1. Perpare the keys: 
           <div class="indent">
@@ -73,13 +81,13 @@
     Body:
       {
         "access_key": "test", 
-        "secret_key": "Above Secret Key",
+        "secret_key": "secret.key.in.step.1",
         "queue_name": "foo",
         "squad_name": "bar"
       }</code>
           </pre>
           <p class="indent">
-            You will get the response like:
+            You will get the response body like:
             <pre class="code">
     <code>{
         "code": 1000,
@@ -90,31 +98,32 @@
         }
     }</code>
             </pre>
+            The "token" will be used in the subsequent requests.
           </p>
           </pre>
         </p>
         <p>
           3. Apply a message id:
           <p class="indent">
-            Every new message new apply its id first.
+            Every new message need a sequence id.
+            Specify the "size" parameter to determine the range of id.
             <pre class="code">
-    <code>POST http://master.gosqs.org/messageID
+    <code>POST http://node-1.gosqs.org/messageID
     Body:
       {
         "queue_name": "foo",
-        "squad_name": "bar"
         "token": "token.from.step.2",
-        "size": 2
+        "size": 1
       }</code>
             </pre>
-            Message range response:
+            Response as following which indicates the id is 5.
             <pre class="code">
     <code>{
       "code": 1000,
       "message": "",
       "data": {
           "message_id_begin": 5,
-          "message_id_end": 6
+          "message_id_end": 5
       }
     }</code>
             </pre>
@@ -124,17 +133,16 @@
           4. Push a message:
           <p class="indent">
             <pre class="code">
-    <code>POST http://master.gosqs.org/message
+    <code>POST http://node-1.gosqs.org/message
     Body:
       {
         "queue_name": "foo",
-        "squad_name": "bar"
         "token": "token.from.step.2",
         "message_id": 5,
         "content": "hello gosqs"
       }</code>
             </pre>
-            Message range response:
+            Check the value of "code" in the response body to detect if the message has been pushed, 1000 is ok.
             <pre class="code">
     <code>{
       "code": 1000,
@@ -148,25 +156,23 @@
           5. Pull messages:
           <p class="indent">
             <pre class="code">
-    <code>POST http://master.gosqs.org/message
+    <code>POST http://node-1.gosqs.org/messages
     Body:
       {
         "queue_name": "foo",
-        "squad_name": "bar"
+        "squad_name": "bar",
         "token": "token.from.step.2",
       }</code>
             </pre>
-            Message range response:
+            Messages will be in the "data" parameter.
             <pre class="code">
     <code>{
       "code": 1000,
       "message": "",
-      "data": {
-        "messages": [
-          {"message_id": 4, "content": "hello from china"},
-          {"message_id": 5, "content": "hello gosqs"}
-        ]
-      } 
+      "data": [
+        {"message_id": 4, "content": "hello from china"},
+        {"message_id": 5, "content": "hello gosqs"}
+      ]
     }</code>
             </pre>
           </p
@@ -227,7 +233,7 @@ export default {
                 this.$notify({
                   type: 'success',
                   title: 'Notification',
-                  message: 'Keys send to ' + body.data.email,
+                  message: 'Check out keys in ' + body.data.email,
                   duration: 0
                 })
                 return

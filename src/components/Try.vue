@@ -95,8 +95,8 @@ export default {
         let data = response.body.data
         let time = this.timeFormat(new Date())
         let entry = {time: time, messages: [{message_id: 0}]}
-        if (data.messages !== null && data.messages.length > 0) {
-          entry.messages = data.messages
+        if (data !== null && data.length > 0) {
+          entry.messages = data
           this.reportReceived()
         }
 

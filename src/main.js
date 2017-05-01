@@ -6,7 +6,9 @@ import 'element-ui/lib/theme-default/index.css'
 import App from './App'
 import router from './router'
 import VueResource from 'vue-resource'
+import VueScrollTo from 'vue-scrollto'
 
+Vue.use(VueScrollTo)
 Vue.use(ElementUI)
 Vue.use(VueResource)
 Vue.config.productionTip = false

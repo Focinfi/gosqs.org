@@ -233,7 +233,7 @@ export default {
                 this.$notify({
                   type: 'success',
                   title: 'Notification',
-                  message: 'Check out keys in ' + body.data.email,
+                  message: 'Sent to ' + body.data.email,
                   duration: 0
                 })
                 return

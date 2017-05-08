@@ -17,7 +17,7 @@
       <el-button class="link-button" size="large" type="primary" v-scroll-to="{el: '#design-overview', offset: -80}"><strong>Look the Design</strong></el-button>
     </el-col>
     <el-col :span="8">
-      <try :masterAddr="masterAddr"></try>
+      <try :masterAddr="masterAddr" :accessKey="testAccessKey" :secretKey="testSecretKey"></try>
     </el-col>
     <el-col :span="4">
     </el-col>
@@ -203,12 +203,11 @@ export default {
     return {
       masterAddr: masterAddr,
       testAccessKey: 'test',
-      testSecretKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyIiOiJ0ZXN0In0.nrTjKRRFa2nuvqpwjNtpHYbWotxupYN6zf-S48XWxuY'
+      testSecretKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2dpdGh1Yl9sb2dpbl9rZXkiOiJ0ZXN0In0.Rmg9qFF_9YwBpIYD_Utd4L89bbIP7Vl9yyzehdos1L8'
     }
   },
   methods: {
     sendKeysToStagzar () {
-      // let _this = this
       this.$prompt('Then input your github.com login', 'Star the github.com/Focinfi/gosqs', {
         confirmButtonText: 'Send Keys',
         cancelButtonText: 'Cancel',
@@ -216,51 +215,48 @@ export default {
           if (content === null || content === undefined || content === '') {
             return 'Empty login'
           }
-          console.log(content)
           return true
         },
 
         beforeClose: (action, instance, done) => {
-          if (action === 'confirm') {
-            instance.confirmButtonLoading = true
-            this.$http.get(this.masterAddr + '/sendGithubEmailSecretKey/' + instance.inputValue).then(response => {
-              let body = response.body
-              if (body.code === 1000) {
-                done()
-                setTimeout(() => {
-                  instance.confirmButtonLoading = false
-                }, 300)
-                this.$notify({
-                  type: 'success',
-                  title: 'Notification',
-                  message: 'Sent to ' + body.data.email,
-                  duration: 0
-                })
-                return
-              }
-
-              this.$message({
-                type: 'warning',
-                message: '"' + instance.inputValue + '" is ' + body.message
-              })
-              instance.confirmButtonLoading = false
-            }, response => {
-              done()
-              this.$message({
-                type: 'info',
-                message: 'Failed to send the keys'
-              })
-            })
-          } else {
+          if (action !== 'confirm') {
             done()
+            return
           }
+          instance.confirmButtonLoading = true
+          this.$http.get(this.masterAddr + '/sendGithubEmailSecretKey/' + instance.inputValue).then(response => {
+            let body = response.body
+            if (body.code === 1000) {
+              done()
+              setTimeout(() => {
+                instance.confirmButtonLoading = false
+              }, 300)
+              this.$notify({
+                type: 'success',
+                title: 'Notification',
+                message: 'Sent to ' + body.data.email,
+                duration: 0
+              })
+              return
+            }
+
+            this.$message({
+              type: 'warning',
+              message: '"' + instance.inputValue + '" is ' + body.message
+            })
+            instance.confirmButtonLoading = false
+          }, response => {
+            done()
+            instance.confirmButtonLoading = false
+            this.$message({
+              type: 'info',
+              message: 'Failed to send the keys'
+            })
+          })
         }
-      }).then(({ value }) => {
-      }).catch(() => {
       })
     }
   }
-
 }
 </script>
 

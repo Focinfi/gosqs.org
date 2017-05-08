@@ -17,17 +17,15 @@
 </template>
 
 <script>
-let accessKey = 'test'
-let secretKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyIiOiJ0ZXN0In0.nrTjKRRFa2nuvqpwjNtpHYbWotxupYN6zf-S48XWxuY'
-
 export default {
   name: 'try',
   props: {
-    masterAddr: String
+    masterAddr: String,
+    accessKey: String,
+    secretKey: String
   },
   data () {
     return {
-      testQueue: accessKey,
       testSquad: 'gosqs.org',
       newMessage: '',
       messageLogs: [],
@@ -46,7 +44,7 @@ export default {
   computed: {
     apiJSONparams () {
       return JSON.stringify({
-        'queue_name': this.testQueue,
+        'queue_name': this.accessKey,
         'squad_name': this.testSquad,
         'token': this.token,
         'message_id': this.nextId,
@@ -61,19 +59,15 @@ export default {
       return this.servingNode === ''
     },
     testingStateString () {
-      if (this.servingNode === '') {
-        return 'unavailabe'
-      }
-
-      return 'availabe'
+      return this.servingNode === '' ? 'unavailabe' : 'availabe'
     }
   },
   methods: {
     applyNode () {
       let body = JSON.stringify({
-        'access_key': accessKey,
-        'secret_key': secretKey,
-        'queue_name': this.testQueue,
+        'access_key': this.accessKey,
+        'secret_key': this.secretKey,
+        'queue_name': this.accessKey,
         'squad_name': this.testSquad
       })
       this.$http.post(this.masterAddr + '/applyNode', body).then(response => {
@@ -84,7 +78,6 @@ export default {
         let data = body.data
         this.servingNode = data.node
         this.token = data.token
-      }, response => {
       })
     },
     pullMessage () {
@@ -140,7 +133,6 @@ export default {
             })
           })
         })
-      }).catch(() => {
       })
     },
     applyMessageID (push) {
